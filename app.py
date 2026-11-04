@@ -41,21 +41,24 @@ PAGE = """<!doctype html>
 <title>Temp Target</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <style>
- body{font-family:system-ui,sans-serif;max-width:420px;margin:2rem auto;padding:0 1rem}
+ :root{color-scheme:dark;--bg:#222;--fg:#fff;--muted:#aaa;--green:#4cff00;--red:#ff3b30;--yellow:#ffe600}
+ html{min-height:100%;background:var(--bg) linear-gradient(to bottom,#3a3a3a 0%,#222 40%,#000 100%) no-repeat fixed}
+ body{font-family:system-ui,sans-serif;max-width:420px;margin:0 auto;padding:2rem 1rem;background:transparent;color:var(--fg)}
+ input[type=range]{accent-color:var(--green)}
  h1{font-size:1.3rem;text-align:center} label{display:block;margin-top:1.5rem}
  output{font-weight:bold} input[type=range]{width:100%}
  #pinbox{text-align:center}
  input[type=password]{font-size:1.5rem;letter-spacing:.5rem;width:6rem;text-align:center;padding:.4rem .2rem .4rem .7rem;
-  margin-top:.5rem;border:2px solid #9ca3af;border-radius:12px}
+  margin-top:.5rem;border:2px solid var(--muted);border-radius:12px;background:#000;color:var(--fg)}
+ input[type=password]:focus{outline:0;border-color:var(--green)}
  button{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;max-width:280px;
-  margin:1rem auto 0;padding:.8rem 1.5rem;font-size:1rem;font-weight:600;color:#fff;background:#2563eb;
-  border:0;border-radius:12px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.2);transition:filter .15s,transform .05s}
+  margin:1rem auto 0;padding:.8rem 1.5rem;font-size:1rem;font-weight:600;color:#000;background:var(--green);
+  border:0;border-radius:12px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.5);transition:filter .15s,transform .05s}
  button:hover{filter:brightness(1.1)} button:active{transform:scale(.98)}
  button:disabled{opacity:.5;cursor:not-allowed}
  button svg{width:1.2em;height:1.2em;flex:none}
- #cancel{background:#dc2626}
- #msg{text-align:center}
- #msg{margin-top:1rem;font-weight:bold}.ok{color:#080}.err{color:#b00}
+ #cancel{background:var(--red);color:#fff}
+ #msg{margin-top:1rem;font-weight:bold;text-align:center}.ok{color:var(--green)}.err{color:var(--red)}
  .hidden{display:none}
 </style></head><body>
 <h1>Nightscout Temporary Target</h1>
