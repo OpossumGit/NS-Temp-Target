@@ -11,6 +11,8 @@ services:
       APP_PIN: ${APP_PIN:?set APP_PIN in .env}
       SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY in .env}
     read_only: true
+    tmpfs:
+      - /tmp
     cap_drop:
       - ALL
     security_opt:
