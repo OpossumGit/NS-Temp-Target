@@ -26,4 +26,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
 
 # One worker on purpose: the PIN lockout counter lives in process memory,
 # so multiple workers would each keep their own count. Threads handle concurrency.
-CMD ["sh", "-c", "exec gunicorn --bind 0.0.0.0:${PORT} --workers 1 --threads 4 --access-logfile - app:app"]
+CMD ["sh", "-c", "exec gunicorn --bind 0.0.0.0:${PORT} --workers 1 --threads 4 --no-control-socket --access-logfile - app:app"]
