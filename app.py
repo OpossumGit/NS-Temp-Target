@@ -14,7 +14,7 @@ import time
 from datetime import datetime, timezone
 
 import requests
-from flask import Flask, jsonify, render_template_string, request, session
+from flask import Flask, Response, jsonify, render_template_string, request, session
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
@@ -38,6 +38,7 @@ PAGE = """<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Temp Target</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <style>
  body{font-family:system-ui,sans-serif;max-width:420px;margin:2rem auto;padding:0 1rem}
  h1{font-size:1.3rem;text-align:center} label{display:block;margin-top:1.5rem}
@@ -106,6 +107,21 @@ async function send(url, body, okText){
 $("submit").onclick = () => send("/submit", {target: parseFloat($("target").value), duration: parseInt($("dur").value)}, "Temporary target set.");
 $("cancel").onclick = () => send("/cancel", {}, "Temporary target cancelled.");
 </script></body></html>"""
+
+
+FAVICON = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<circle cx="32" cy="32" r="30" fill="#dc2626"/>
+<circle cx="32" cy="32" r="21" fill="#fff"/>
+<circle cx="32" cy="32" r="13" fill="#dc2626"/>
+<circle cx="32" cy="32" r="5" fill="#fff"/>
+</svg>"""
+
+
+@app.get("/favicon.svg")
+@app.get("/favicon.ico")
+def favicon():
+    return Response(FAVICON, mimetype="image/svg+xml",
+                    headers={"Cache-Control": "public, max-age=86400"})
 
 
 @app.get("/")
