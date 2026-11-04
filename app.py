@@ -189,7 +189,12 @@ def cancel():
 
 
 def send_treatment(treatment):
-    treatment["created_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    now = datetime.now(timezone.utc)
+    treatment["created_at"] = now.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    # Epoch milliseconds, which AAPS (API v3) uses as the event timestamp.
+    treatment["date"] = int(now.timestamp() * 1000)
+    # Local UTC offset in minutes; 0 because the timestamps above are UTC.
+    treatment["utcOffset"] = 0
     treatment["enteredBy"] = "ns-temp-target"
     try:
         # 1. Exchange access token for a JWT.
