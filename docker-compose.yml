@@ -1,0 +1,17 @@
+services:
+  ns-temp-target:
+    image: ghcr.io/opossumgit/ns-temp-target:main
+    container_name: ns-temp-target
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      NIGHTSCOUT_URL: ${NIGHTSCOUT_URL:?set NIGHTSCOUT_URL in .env}
+      NIGHTSCOUT_TOKEN: ${NIGHTSCOUT_TOKEN:?set NIGHTSCOUT_TOKEN in .env}
+      APP_PIN: ${APP_PIN:?set APP_PIN in .env}
+      SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY in .env}
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
