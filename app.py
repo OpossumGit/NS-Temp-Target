@@ -8,6 +8,9 @@ Environment variables:
   PORT                Optional port (default 8080)
 """
 import hmac
+import struct
+import zlib
+from functools import lru_cache
 import os
 import secrets
 import time
@@ -40,6 +43,14 @@ PAGE = """<!doctype html>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Temp Target</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#222222">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Temp Target">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <style>
  :root{color-scheme:dark;--bg:#222;--fg:#fff;--muted:#aaa;--green:#4cff00;--red:#ff3b30;--yellow:#ffe600}
  html{min-height:100%;background:var(--bg) linear-gradient(to bottom,#3a3a3a 0%,#222 40%,#000 100%) no-repeat fixed}
@@ -126,6 +137,86 @@ FAVICON = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
 def favicon():
     return Response(FAVICON, mimetype="image/svg+xml",
                     headers={"Cache-Control": "public, max-age=86400"})
+
+
+PNG_SIGNATURE = bytes([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
+
+
+@lru_cache(maxsize=None)
+def target_png(size):
+    """Opaque square PNG of the target icon (pure Python, no image library).
+
+    Full-bleed and opaque on purpose: iOS fills transparent areas with black and
+    rounds the corners itself. Artwork stays inside the central 80% so Android
+    can also use it as a maskable icon.
+    """
+    red, white = (220, 38, 38), (255, 255, 255)
+    rings = [(0.36, white), (0.25, red), (0.11, white)]  # radius as fraction of size
+    ss = 2  # 2x2 supersampling for smooth edges
+    c = size / 2.0
+    rows = []
+    for y in range(size):
+        row = bytearray([0])  # PNG filter type 0
+        for x in range(size):
+            r = g = b = 0
+            for sy in range(ss):
+                for sx in range(ss):
+                    d = (((x + (sx + .5) / ss) - c) ** 2 + ((y + (sy + .5) / ss) - c) ** 2) ** .5 / size
+                    col = red
+                    for radius, ring_col in rings:
+                        if d <= radius:
+                            col = ring_col
+                    r += col[0]; g += col[1]; b += col[2]
+            n = ss * ss
+            row += bytes((r // n, g // n, b // n))
+        rows.append(bytes(row))
+
+    def chunk(tag, data):
+        body = tag + data
+        return struct.pack(">I", len(data)) + body + struct.pack(">I", zlib.crc32(body) & 0xFFFFFFFF)
+
+    return (PNG_SIGNATURE
+            + chunk(b"IHDR", struct.pack(">IIBBBBB", size, size, 8, 2, 0, 0, 0))
+            + chunk(b"IDAT", zlib.compress(b"".join(rows), 9))
+            + chunk(b"IEND", b""))
+
+
+def _png_response(size):
+    return Response(target_png(size), mimetype="image/png",
+                    headers={"Cache-Control": "public, max-age=86400"})
+
+
+@app.get("/apple-touch-icon.png")
+@app.get("/apple-touch-icon-precomposed.png")
+def apple_touch_icon():
+    return _png_response(180)
+
+
+@app.get("/icon-192.png")
+def icon_192():
+    return _png_response(192)
+
+
+@app.get("/icon-512.png")
+def icon_512():
+    return _png_response(512)
+
+
+@app.get("/manifest.webmanifest")
+def manifest():
+    return jsonify(
+        name="Nightscout Temp Target",
+        short_name="Temp Target",
+        start_url="/",
+        scope="/",
+        display="standalone",
+        background_color="#222222",
+        theme_color="#222222",
+        icons=[
+            {"src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+            {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"},
+        ],
+    ), 200, {"Content-Type": "application/manifest+json"}
 
 
 @app.get("/")
