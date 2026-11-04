@@ -13,7 +13,7 @@ A small Flask web app for setting (and cancelling) a **Temporary Target** in [Ni
 For each action the app:
 
 1. `GET {NIGHTSCOUT_URL}/api/v2/authorization/request/{NIGHTSCOUT_TOKEN}` to exchange the access token for a JWT.
-2. `POST {NIGHTSCOUT_URL}/api/v1/treatments` with `Authorization: Bearer <jwt>`.
+2. `POST {NIGHTSCOUT_URL}/api/v3/treatments` with `Authorization: Bearer <jwt>`.
 
 The target is sent as integer **mg/dL** (`units: "mg/dl"`) for compatibility with clients such as Nightguard; Nightscout converts it for display. Cancelling sends a Temporary Target with `duration: 0`.
 

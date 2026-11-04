@@ -163,7 +163,8 @@ def submit():
 
     return send_treatment({
         "eventType": "Temporary Target",
-        "reason": "Manual",
+        # One of AAPS's known reasons (Custom, Hypo, Activity, Eating Soon).
+        "reason": "Custom",
         # Sent in mg/dL (integer) for compatibility with clients such as
         # Nightguard that expect mg/dL; Nightscout converts for display.
         "targetTop": target_mgdl,
@@ -182,19 +183,22 @@ def cancel():
     # A Temporary Target with duration 0 ends any currently active target.
     return send_treatment({
         "eventType": "Temporary Target",
-        "reason": "Cancel",
+        "reason": "Canceled",
         "duration": 0,
-        "units": "mg/dl",
     })
 
 
 def send_treatment(treatment):
     now = datetime.now(timezone.utc)
+    millis = int(now.timestamp() * 1000)
     treatment["created_at"] = now.strftime("%Y-%m-%dT%H:%M:%S.000Z")
-    # Epoch milliseconds, which AAPS (API v3) uses as the event timestamp.
-    treatment["date"] = int(now.timestamp() * 1000)
+    # Epoch milliseconds; API v3 requires `date`, and AAPS uses it as the event timestamp.
+    treatment["date"] = millis
+    treatment["mills"] = millis
     # Local UTC offset in minutes; 0 because the timestamps above are UTC.
     treatment["utcOffset"] = 0
+    # API v3 requires `app`.
+    treatment["app"] = "ns-temp-target"
     treatment["enteredBy"] = "ns-temp-target"
     try:
         # 1. Exchange access token for a JWT.
@@ -204,7 +208,7 @@ def send_treatment(treatment):
 
         # 2. Create the treatment.
         r = requests.post(
-            f"{NS_URL}/api/v1/treatments",
+            f"{NS_URL}/api/v3/treatments",
             json=treatment,
             headers={"Authorization": f"Bearer {jwt}"},
             timeout=15,
