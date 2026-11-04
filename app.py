@@ -12,6 +12,7 @@ import os
 import secrets
 import time
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 
 import requests
 from flask import Flask, Response, jsonify, render_template_string, request, session
@@ -188,23 +189,40 @@ def cancel():
     })
 
 
+def server_now(response):
+    """Current UTC time according to the Nightscout server.
+
+    Taken from the HTTP Date header, so a wrong clock on this host cannot push
+    events into the future (AAPS ignores targets stamped ahead of its own clock).
+    The header has 1-second resolution, so the result is at most about a second
+    behind the true time, which is the safe direction. Falls back to the local
+    clock if the header is missing or unparseable.
+    """
+    try:
+        return parsedate_to_datetime(response.headers["Date"]).astimezone(timezone.utc)
+    except (KeyError, TypeError, ValueError):
+        return datetime.now(timezone.utc)
+
+
 def send_treatment(treatment):
-    now = datetime.now(timezone.utc)
-    millis = int(now.timestamp() * 1000)
-    treatment["created_at"] = now.strftime("%Y-%m-%dT%H:%M:%S.000Z")
-    # Epoch milliseconds; API v3 requires `date`, and AAPS uses it as the event timestamp.
-    treatment["date"] = millis
-    treatment["mills"] = millis
-    # Local UTC offset in minutes; 0 because the timestamps above are UTC.
-    treatment["utcOffset"] = 0
-    # API v3 requires `app`.
-    treatment["app"] = "ns-temp-target"
-    treatment["enteredBy"] = "ns-temp-target"
     try:
         # 1. Exchange access token for a JWT.
         r = requests.get(f"{NS_URL}/api/v2/authorization/request/{NS_TOKEN}", timeout=15)
         r.raise_for_status()
         jwt = r.json()["token"]
+
+        # Stamp the event with the server's clock, not this host's.
+        now = server_now(r)
+        millis = int(now.timestamp() * 1000)
+        treatment["created_at"] = now.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        # Epoch milliseconds; API v3 requires `date`, and AAPS uses it as the event timestamp.
+        treatment["date"] = millis
+        treatment["mills"] = millis
+        # Local UTC offset in minutes; 0 because the timestamps above are UTC.
+        treatment["utcOffset"] = 0
+        # API v3 requires `app`.
+        treatment["app"] = "ns-temp-target"
+        treatment["enteredBy"] = "ns-temp-target"
 
         # 2. Create the treatment.
         r = requests.post(
