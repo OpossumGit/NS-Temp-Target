@@ -1,5 +1,7 @@
 # ns-temp-target
 
+[![build](https://github.com/OpossumGit/NS-Temp-Target/actions/workflows/build.yml/badge.svg)](https://github.com/OpossumGit/NS-Temp-Target/actions/workflows/build.yml)
+
 A small Flask web app for setting (and cancelling) a **Temporary Target** in [Nightscout](https://nightscout.github.io/) from a phone-friendly page.
 
 1. Enter a 4-digit PIN (auto-submits on the fourth digit).
