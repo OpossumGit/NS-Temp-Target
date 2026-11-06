@@ -1,19 +1,60 @@
-:root{color-scheme:dark;--bg:#222;--fg:#fff;--muted:#aaa;--green:#4cff00;--red:#ff3b30;--yellow:#ffe600}
-html{min-height:100%;background:var(--bg) linear-gradient(to bottom,#3a3a3a 0%,#222 40%,#000 100%) no-repeat fixed}
-body{font-family:system-ui,sans-serif;max-width:420px;margin:0 auto;padding:2rem 1rem;background:transparent;color:var(--fg)}
-input[type=range]{accent-color:var(--green)}
-h1{font-size:1.3rem;text-align:center} label{display:block;margin-top:1.5rem}
-output{font-weight:bold} input[type=range]{width:100%}
+:root{color-scheme:light;--ink:#111;--paper:#f8f7f4;
+ --comic:"Comic Sans MS","Comic Neue","Chalkboard SE","Bradley Hand","Segoe Print",cursive}
+/* Paper: warm off-white base, fine grain, faint horizontal fibres and a soft darkened edge. */
+html{min-height:100%;background-color:var(--paper);
+ background-image:radial-gradient(ellipse at center,transparent 55%,rgba(90,85,75,.10) 100%),
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .38  0 0 0 0 .36  0 0 0 0 .33  0 0 0 .40 -.14'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)'/%3E%3C/svg%3E"),
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .09' numOctaves='2' seed='9'/%3E%3CfeColorMatrix values='0 0 0 0 .45  0 0 0 0 .43  0 0 0 0 .40  0 0 0 .35 -.14'/%3E%3C/filter%3E%3Crect width='500' height='500' filter='url(%23f)'/%3E%3C/svg%3E");
+ background-attachment:fixed}
+body{font-family:var(--comic);max-width:420px;margin:0 auto;padding:2rem 1rem;background:transparent;color:var(--ink)}
+
+/* Pencil look: outlines are drawn by pseudo-elements (so text stays crisp) and run through
+   the #pencil / #pencil2 SVG filters in index.html: wobbly line plus grainy graphite texture.
+   A second, fainter, slightly rotated stroke gives the sketched double line. */
+.panel,button{position:relative}
+.panel::before,.panel::after,button::before,button::after{content:"";position:absolute;inset:0;pointer-events:none;
+ border:2px solid var(--ink);filter:url(#pencil)}
+.panel::before{border-radius:19px 23px 17px 24px / 22px 17px 24px 18px}
+.panel::after{border-radius:23px 17px 22px 18px / 17px 23px 18px 22px;border-width:1.5px;opacity:.45;
+ transform:rotate(-.35deg) translate(1px,-1px);filter:url(#pencil2)}
+button::before{border-radius:999px 940px 999px 960px}
+button::after{border-radius:960px 999px 940px 999px;border-width:1.5px;opacity:.45;
+ transform:rotate(.4deg) translate(-1px,1px);filter:url(#pencil2)}
+
+/* Old-car climate control: two sliding levers in a panel. */
+.panel{margin-top:1.5rem;padding:1rem 1.2rem 1.4rem;border:2px solid transparent;background:transparent}
+input[type=range]{-webkit-appearance:none;appearance:none;display:block;width:100%;height:48px;margin:.3rem 0 0;
+ background:transparent;cursor:grab;touch-action:pan-y;filter:url(#pencil)}
+input[type=range]:active{cursor:grabbing}
+input[type=range]:focus{outline:0}
+input[type=range]::-webkit-slider-runnable-track{height:12px;border-radius:6px 8px 5px 9px;border:2px solid var(--ink);background:var(--paper)}
+input[type=range]::-moz-range-track{height:12px;border-radius:6px 8px 5px 9px;border:2px solid var(--ink);background:var(--paper)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;box-sizing:border-box;width:24px;height:46px;margin-top:-19px;
+ border-radius:8px 6px 9px 7px;border:2px solid var(--ink);
+ background:linear-gradient(var(--ink),var(--ink)) center/2px 60% no-repeat,var(--paper)}
+input[type=range]::-moz-range-thumb{box-sizing:border-box;width:24px;height:46px;
+ border-radius:8px 6px 9px 7px;border:2px solid var(--ink);
+ background:linear-gradient(var(--ink),var(--ink)) center/2px 60% no-repeat,var(--paper)}
+input[type=range]:focus-visible::-webkit-slider-thumb{outline:3px solid var(--ink);outline-offset:2px}
+input[type=range]:focus-visible::-moz-range-thumb{outline:3px solid var(--ink);outline-offset:2px}
+/* Comic lettering with a lighter pencil filter (less warp than the outlines, so it stays readable). */
+.ink,#msg,button svg{filter:url(#pencil-text)}
+.ink{display:inline-block}  /* filters need a box; inline-block keeps the text flowing normally */
+button,input{font-family:inherit}
+h1{font-size:1.7rem;font-weight:700;text-align:center;letter-spacing:.02em;filter:url(#pencil-text)}
+label{display:block;margin-top:1.5rem}
+output{font-weight:bold}
 #pinbox{text-align:center}
 input[type=password]{font-size:1.5rem;letter-spacing:.5rem;width:6rem;text-align:center;padding:.4rem .2rem .4rem .7rem;
- margin-top:.5rem;border:2px solid var(--muted);border-radius:12px;background:#000;color:var(--fg)}
-input[type=password]:focus{outline:0;border-color:var(--green)}
+ margin-top:.5rem;border:2px solid var(--ink);border-radius:13px 11px 14px 10px;background:rgba(255,255,255,.35);color:var(--ink);
+ filter:url(#pencil)}
+input[type=password]:focus{outline:3px solid var(--ink);outline-offset:2px}
 button{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;max-width:280px;
- margin:1rem auto 0;padding:.8rem 1.5rem;font-size:1rem;font-weight:600;color:#000;background:var(--green);
- border:0;border-radius:12px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.5);transition:filter .15s,transform .05s}
-button:hover{filter:brightness(1.1)} button:active{transform:scale(.98)}
+ margin:1rem auto 0;padding:.8rem 1.5rem;font-size:1rem;font-weight:600;color:var(--ink);background:transparent;
+ border:2px solid transparent;border-radius:999px;cursor:pointer;transition:transform .05s}
+button:hover{background:rgba(0,0,0,.06)} button:active{transform:scale(.98)}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 button:disabled{opacity:.5;cursor:not-allowed}
 button svg{width:1.2em;height:1.2em;flex:none}
-#cancel{background:var(--red);color:#fff}
-#msg{margin-top:1rem;font-weight:bold;text-align:center}.ok{color:var(--green)}.err{color:var(--red)}
+#msg{margin-top:1rem;font-weight:bold;text-align:center}
 .hidden{display:none}

@@ -6,27 +6,55 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#222222">
+<meta name="theme-color" content="#f8f7f4">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Temp Target">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head><body>
+<!-- SVG filters for the pencil-drawn outlines (see style.css) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="pencil" x="-5%" y="-10%" width="110%" height="120%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="3" result="warp"/>
+      <feDisplacementMap in="SourceGraphic" in2="warp" scale="3.5" xChannelSelector="R" yChannelSelector="G" result="wobbly"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="8" result="grain"/>
+      <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 2.1" result="mask"/>
+      <feComposite in="wobbly" in2="mask" operator="in"/>
+    </filter>
+    <filter id="pencil-text" x="-2%" y="-10%" width="104%" height="120%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="5" result="warp"/>
+      <feDisplacementMap in="SourceGraphic" in2="warp" scale="2" xChannelSelector="R" yChannelSelector="G" result="wobbly"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="14" result="grain"/>
+      <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 2.1" result="mask"/>
+      <feComposite in="wobbly" in2="mask" operator="in"/>
+    </filter>
+    <filter id="pencil2"x="-5%" y="-10%" width="110%" height="120%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="11" result="warp"/>
+      <feDisplacementMap in="SourceGraphic" in2="warp" scale="5" xChannelSelector="G" yChannelSelector="R" result="wobbly"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="21" result="grain"/>
+      <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.8 2"  result="mask"/>
+      <feComposite in="wobbly" in2="mask" operator="in"/>
+    </filter>
+  </defs>
+</svg>
 <h1>Nightscout Temporary Target</h1>
 
 <div id="pinbox" class="{{ 'hidden' if unlocked else '' }}">
-  <label>Enter PIN<br>
+  <label><span class="ink">Enter PIN</span><br>
   <input id="pin" type="password" inputmode="numeric" pattern="\d{4}" maxlength="4" autofocus></label>
 </div>
 
 <div id="main" class="{{ '' if unlocked else 'hidden' }}">
-  <label>Target: <output id="tv">6.0</output> mmol/L
-    <input id="target" type="range" min="4.0" max="8.0" step="0.1" value="6.0"></label>
-  <label>Duration: <output id="dv">60</output> min
-    <input id="dur" type="range" min="10" max="120" step="5" value="60"></label>
-  <button id="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg>Submit TT</button>
-  <button id="cancel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>Cancel Target</button>
+  <div class="panel">
+    <label><span class="ink">Target: <output id="tv">6.0</output> mmol/L</span>
+      <input id="target" type="range" min="4.0" max="8.0" step="0.1" value="6.0"></label>
+    <label><span class="ink">Duration: <output id="dv">60</output> min</span>
+      <input id="dur" type="range" min="10" max="120" step="5" value="60"></label>
+  </div>
+  <button id="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg><span class="ink">Submit TT</span></button>
+  <button id="cancel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg><span class="ink">Cancel Target</span></button>
 </div>
 <div id="msg"></div>
 
