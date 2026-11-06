@@ -17,6 +17,24 @@ For each action the app:
 
 The target is sent as integer **mg/dL** (`units: "mg/dl"`) for compatibility with clients such as Nightguard; Nightscout converts it for display. Cancelling sends a Temporary Target with `duration: 0`.
 
+## Project layout
+
+```
+app.py                    entry point (python app.py, or gunicorn app:app)
+requirements.txt          Python dependencies
+Dockerfile, docker-compose.yml, .env.example   container setup
+ns_temp_target/
+  __init__.py             create_app() factory
+  models.py               model: config, input validation, Nightscout client, login lockout
+  api.py                  controller: /login, /submit, /cancel JSON endpoints
+  web.py                  controller: page, icons, web app manifest
+  icons.py                view assets: favicon SVG and generated PNG icons
+  templates/index.html    view: the page
+  static/                 view: app.js and style.css
+```
+
+The app follows a simple MVC split: views (templates, static files, icons) hold no logic, controllers (`api.py`, `web.py`) only handle requests and sessions, and `models.py` contains the business logic and has no Flask dependency.
+
 ## Configuration
 
 All configuration is through environment variables.
