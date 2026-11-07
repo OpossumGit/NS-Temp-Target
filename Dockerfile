@@ -16,6 +16,10 @@ RUN pip install -r requirements.txt
 COPY app.py .
 COPY ns_temp_target ./ns_temp_target
 
+# Release version shown in the page footer; set by the build workflow.
+ARG APP_VERSION=dev
+ENV APP_VERSION=${APP_VERSION}
+
 # Run as an unprivileged user.
 RUN useradd --system --no-create-home appuser
 USER appuser

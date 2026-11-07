@@ -58,4 +58,6 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 button:disabled{opacity:.5;cursor:not-allowed}
 button svg{width:1.2em;height:1.2em;flex:none}
 #msg{margin-top:1rem;font-weight:bold;text-align:center}
+#version{position:fixed;right:0;bottom:0;padding:.5rem .8rem calc(.5rem + env(safe-area-inset-bottom));
+ font-size:.8rem;opacity:.6;pointer-events:none}
 .hidden{display:none}

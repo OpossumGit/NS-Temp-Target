@@ -1,16 +1,23 @@
 """Controller: page and static-asset routes."""
+import os
+
 from flask import Blueprint, Response, jsonify, render_template, session
 
 from . import icons
 
 bp = Blueprint("web", __name__)
 
+# Baked into the image at build time (see Dockerfile / build.yml); "dev" when run locally.
+_VERSION = os.environ.get("APP_VERSION") or "dev"
+if _VERSION[:1].isdigit():
+    _VERSION = "v" + _VERSION
+
 _ICON_CACHE = {"Cache-Control": "public, max-age=86400"}
 
 
 @bp.get("/")
 def index():
-    return render_template("index.html", unlocked=bool(session.get("auth")))
+    return render_template("index.html", unlocked=bool(session.get("auth")), version=_VERSION)
 
 
 @bp.get("/favicon.svg")
